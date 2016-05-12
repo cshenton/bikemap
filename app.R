@@ -5,18 +5,16 @@ library(XML)
 library(lubridate)
 library(leaflet)
 library(DT)
+library(magrittr)
 
 
 # Define the UI
-myui = fluidPage(  
-	titlePanel(textOutput("title")),
-	sidebarLayout(
-		sidebarPanel(
-			textOutput("lastupdate")
-		),
-		mainPanel(
-			leafletOutput("bikemap")
-		) 
+myui =  bootstrapPage(
+	tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+	leafletOutput("bikemap", width = "100%", height = "100%"),
+	absolutePanel(top = 50, right = 50, width = 300,
+		h1(textOutput("title")),
+		textOutput("lastupdate")
 	)
 )
 
@@ -29,7 +27,7 @@ myserver = function(input, output, session) {
 	})
 
 	output$title = renderText({
-
+		"Melbourne BikeShare Map"
 	})
 
 	output$lastupdate = renderText({
@@ -40,11 +38,20 @@ myserver = function(input, output, session) {
 	})
 
 	output$bikemap = renderLeaflet({
-		# pull in data
-		# make map	
-		map <- leaflet() %>% setView(lng = 144.972762 , lat = -37.809072, zoom = 13)
-		map %>% addTiles()
-		map %>% addProviderTiles("CartoDB.Positron")
+		data = rawData()$value		# Pull in data
+		map = leaflet(data) %>% 	# Generate, return map
+			setView(lng = 144.967814 , lat = -37.827523, zoom = 13) %>% 
+			addProviderTiles("CartoDB.Positron") %>%
+			addCircleMarkers(
+				radius = ~(nbBikes + nbEmptyDocks),
+				stroke = FALSE,
+				fillOpacity = 0.5
+             # label = ~name,
+             # labelOptions = lapply(1:nrow(data), function(x) {
+             #   labelOptions(opacity=0.9, noHide = T)
+             # })
+             )
+		map
 	})
 
 }

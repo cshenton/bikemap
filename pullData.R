@@ -11,4 +11,7 @@ for(var in datevars){
 							tz="Australia/Melbourne", 
 							origin="1970-01-01")
 }
+data$nbBikes = as.numeric(data$nbBikes)
+data$nbEmptyDocks = as.numeric(data$nbEmptyDocks)
+data$terminalName = as.numeric(data$terminalName)
 return(data)
