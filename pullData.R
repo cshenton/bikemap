@@ -1,12 +1,7 @@
-library(jsonlite)
-library(RCurl)
-library(XML)
-library(lubridate)
 
 # Downloads data from Bikeshare site,
-# Reformats, returns formatted data
-datevars = c("lastCommWithServer", "installDate", "latestUpdateTime")
-source = "http://www.melbournebikeshare.com.au/stationmap/data"
+# Converts dates to POSIXct format
+
 file = getURL(source)
 file = gsub("\\", "", file, fixed=TRUE)
 data = fromJSON(file)
