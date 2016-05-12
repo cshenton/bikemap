@@ -1,7 +1,8 @@
 
 # Downloads data from Bikeshare site,
 # Converts dates to POSIXct format
-
+datevars = c("lastCommWithServer", "installDate", "latestUpdateTime")
+source = "http://www.melbournebikeshare.com.au/stationmap/data"
 file = getURL(source)
 file = gsub("\\", "", file, fixed=TRUE)
 data = fromJSON(file)

@@ -3,10 +3,9 @@ library(jsonlite)
 library(RCurl)
 library(XML)
 library(lubridate)
+library(leaflet)
 library(DT)
 
-datevars = c("lastCommWithServer", "installDate", "latestUpdateTime")
-source = "http://www.melbournebikeshare.com.au/stationmap/data"
 
 # Define the UI
 myui = fluidPage(  
@@ -16,7 +15,7 @@ myui = fluidPage(
 			textOutput("lastupdate")
 		),
 		mainPanel(
-			plotOutput("bikemap")
+			leafletOutput("bikemap")
 		) 
 	)
 )
@@ -43,7 +42,11 @@ myserver = function(input, output, session) {
 	output$bikemap = renderLeaflet({
 		# pull in data
 		# make map	
-		map	
+		map <- leaflet() %>% setView(lng = 144.972762 , lat = -37.809072, zoom = 13)
+		map %>% addTiles()
+		map %>% addProviderTiles("CartoDB.Positron")
 	})
 
 }
+
+shinyApp(ui=myui, server=myserver)
