@@ -132,7 +132,8 @@ myserver = function(input, output, session) {
 					radius = ~(nbBikes + nbEmptyDocks),
 					stroke = FALSE,
 					fillOpacity = 0.5,
-					popup = ~name,
+					popup = ~paste(name,"<br/> <b>Last Update:</b>",
+						lastCommWithServer),
 					color = "blue",
 					group = "capacity"
 					) %>%
@@ -140,7 +141,8 @@ myserver = function(input, output, session) {
 					radius = 15,
 					stroke = FALSE,
 					fillOpacity = 1.0,
-					popup = ~name,
+					popup = ~paste(name,"<br/> <b>Last Update:</b>",
+						lastCommWithServer),
 					color = ~pal(capacity),
 					group = "remaining"
 					) %>%
@@ -153,7 +155,8 @@ myserver = function(input, output, session) {
 				radius = 15,
 				stroke = FALSE,
 				fillOpacity = 0.5,
-				popup = ~name,
+				popup = ~paste(name,"<br/> <b>Last Update:</b>",
+					lastCommWithServer),
 				color = "green",
 				clusterOptions = markerClusterOptions(),
 				group = "bikeloc"
