@@ -6,14 +6,35 @@ library(lubridate)
 library(leaflet)
 library(DT)
 library(magrittr)
-
+library(htmltools)
 
 # Define the UI
 myui =  bootstrapPage(
+	tags$script('
+	$(document).ready(function () {
+	navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+	function onError (err) {
+	Shiny.onInputChange("geolocation", false);
+	}
+
+	function onSuccess (position) {
+		setTimeout(function () {
+	    	var coords = position.coords;
+			console.log(coords.latitude + ", " + coords.longitude);
+			Shiny.onInputChange("geolocation", true);
+			Shiny.onInputChange("lat", coords.latitude);
+			Shiny.onInputChange("long", coords.longitude);
+	  }, 1100)
+	}
+	});
+	'),
 	tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
 	leafletOutput("bikemap", width = "100%", height = "100%"),
 	absolutePanel(top = 50, right = 50, width = 300,
 		h1(textOutput("title")),
+		h3("This is a map of all the BikeShare stations in Melbourne.
+			Select each option to view different information."),
 		textOutput("lastupdate"),
 		radioButtons("choice", label = h3("Choose What To Display"), 
         choices = list("Station Size" = 1, "Current Capacity" = 2,
@@ -45,6 +66,15 @@ myserver = function(input, output, session) {
 		leaflet() %>% 	# Generate, return map
 			setView(lng = 145.017814 , lat = -37.827523, zoom = 13) %>% 
 			addProviderTiles("CartoDB.Positron")
+	})
+	# An observer is used to locate the user on the map.
+	observe({
+		if(!is.null(input$lat)) {
+			lat = input$lat
+			long = input$long
+			leafletProxy("bikemap") %>%
+			addMarkers(long, lat, popup = htmlEscape("You Are Here"))
+		}
 	})
 
 	# An observer is used to make the elements responsive
