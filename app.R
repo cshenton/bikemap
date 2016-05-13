@@ -61,12 +61,14 @@ myserver = function(input, output, session) {
 	output$infotext = renderText({
 		if(input$choice==1) {
 			"Each circle represents the relative 
-				size (# of docks) of each station."
+				size (# of docks) of each station. Click 
+				on a station to see its name."
 		} else if(input$choice==2) {
 			"The colour of each circle shows what proportion of
-				bikes are still available at that station right now."
+				bikes are still available at that station right now.
+				Click on a station to see its name."
 		} else if(input$choice==3) {
-			"The number on each cluster shows the number of bikes 
+			"The number on each cluster shows the total number of bikes 
 				currently available in that region. Click one to
 				see more detail."
 	}
