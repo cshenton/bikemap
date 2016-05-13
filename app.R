@@ -14,7 +14,10 @@ myui =  bootstrapPage(
 	leafletOutput("bikemap", width = "100%", height = "100%"),
 	absolutePanel(top = 50, right = 50, width = 300,
 		h1(textOutput("title")),
-		textOutput("lastupdate")
+		textOutput("lastupdate"),
+		selectInput("choice", label = h3("Choose What To Display"), 
+        choices = list("Station Size" = 1, "Current Capacity" = 2,
+                       "Clustered Bike Locations" = 3), selected = 1)
 	)
 )
 
@@ -36,22 +39,61 @@ myserver = function(input, output, session) {
 		attributes(time)$tzone = "Australia/Melbourne"
 		paste("Last update was at", time)
 	})
-
+	
+	# The base map is not reactive 
 	output$bikemap = renderLeaflet({
-		data = rawData()$value		# Pull in data
-		map = leaflet(data) %>% 	# Generate, return map
-			setView(lng = 144.967814 , lat = -37.827523, zoom = 13) %>% 
-			addProviderTiles("CartoDB.Positron") %>%
-			addCircleMarkers(
-				radius = ~(nbBikes + nbEmptyDocks),
-				stroke = FALSE,
-				fillOpacity = 0.5
-             # label = ~name,
-             # labelOptions = lapply(1:nrow(data), function(x) {
-             #   labelOptions(opacity=0.9, noHide = T)
-             # })
-             )
-		map
+		leaflet() %>% 	# Generate, return map
+			setView(lng = 145.017814 , lat = -37.827523, zoom = 13) %>% 
+			addProviderTiles("CartoDB.Positron")
+	})
+
+	# An observer is used to make the elements responsive
+	observe({
+		bikedata = rawData()$value
+		if (input$choice==1){
+			leafletProxy("bikemap", data=bikedata) %>%
+				removeControl("legend") %>%
+				clearMarkers() %>%
+				addCircleMarkers(
+					radius = ~(nbBikes + nbEmptyDocks),
+					stroke = FALSE,
+					fillOpacity = 0.5,
+					popup = ~name,
+					color = "blue"
+					)
+		} else if (input$choice==2){
+			pal = colorNumeric(
+			  palette = "RdYlGn",
+			  domain = c(0,100)
+			)
+			leafletProxy("bikemap", data=bikedata) %>%
+				clearMarkers() %>%
+				addCircleMarkers(
+					radius = 15,
+					stroke = FALSE,
+					fillOpacity = 1.0,
+					popup = ~name,
+					color = ~pal(capacity)
+					) %>%
+			  	addLegend("bottomright", pal = pal, values = c(0,100),
+				    title = "Current Station Capacity",
+				    layerId = "legend",
+				    labFormat = labelFormat(suffix = "%"),
+				    opacity = 1)
+		} else {
+			bikedata = bikedata[rep(1:nrow(bikedata), times=bikedata$nbBikes),]
+			leafletProxy("bikemap", data=bikedata) %>%
+				clearMarkers() %>%
+				removeControl("legend") %>%
+				addCircleMarkers(
+					radius = 15,
+					stroke = FALSE,
+					fillOpacity = 0.5,
+					popup = ~name,
+					color = "green",
+					clusterOptions = markerClusterOptions()
+					)
+		}
 	})
 
 }

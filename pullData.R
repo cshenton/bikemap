@@ -14,4 +14,5 @@ for(var in datevars){
 data$nbBikes = as.numeric(data$nbBikes)
 data$nbEmptyDocks = as.numeric(data$nbEmptyDocks)
 data$terminalName = as.numeric(data$terminalName)
+data$capacity = data$nbBikes/(data$nbBikes+data$nbEmptyDocks)*100
 return(data)
