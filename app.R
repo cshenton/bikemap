@@ -5,11 +5,13 @@ library(XML)
 library(lubridate)
 library(leaflet)
 library(DT)
+library(sp)
 library(magrittr)
 library(htmltools)
 
 # Define the UI
 myui =  bootstrapPage(
+	# This script pulls the user's geolocation
 	tags$script('
 	$(document).ready(function () {
 	navigator.geolocation.getCurrentPosition(onSuccess, onError);
@@ -35,6 +37,7 @@ myui =  bootstrapPage(
 		h1(textOutput("title")),
 		h3("This is a map of all the BikeShare stations in Melbourne.
 			Select each option to view different information."),
+		textOutput("closest"),
 		textOutput("lastupdate"),
 		radioButtons("choice", label = h3("Choose What To Display"), 
         choices = list("Station Size" = 1, "Current Capacity" = 2,
@@ -67,7 +70,19 @@ myserver = function(input, output, session) {
 			setView(lng = 145.017814 , lat = -37.827523, zoom = 13) %>% 
 			addProviderTiles("CartoDB.Positron")
 	})
-	# An observer is used to locate the user on the map.
+	# Determine the 'as bird flies' closest Bike Rack 
+	output$closest = renderText({
+		if(!is.null(input$lat)) {
+			bikedata = isolate(rawData()$value)
+			user = c(input$long, input$lat)
+			points = as.matrix(bikedata[,c("long","lat")])
+			dists = spDistsN1(points, user, longlat = TRUE)
+			stat = data[which(dists == min(dists), arr.ind = TRUE) ,"name"]
+			paste("Your nearest BikeShare station is", stat)
+		}
+	})
+
+	# Locate the user on the map and add a marker.
 	observe({
 		if(!is.null(input$lat)) {
 			lat = input$lat
@@ -77,7 +92,7 @@ myserver = function(input, output, session) {
 		}
 	})
 
-	# An observer is used to make the elements responsive
+	# An observer is used to make the elements refresh with data
 	observe({
 		bikedata = rawData()$value
 		bikefull = bikedata[rep(1:nrow(bikedata), times=bikedata$nbBikes),]

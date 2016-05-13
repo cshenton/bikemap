@@ -2,6 +2,6 @@ name: BikeMap
 account: cshenton
 server: shinyapps.io
 appId: 101832
-bundleId: 450090
+bundleId: 450121
 url: https://cshenton.shinyapps.io/BikeMap/
-when: 1463149040.59117
+when: 1463150748.46088
