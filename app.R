@@ -10,7 +10,7 @@ library(magrittr)
 library(htmltools)
 
 # Define the UI
-myui =  bootstrapPage(
+myui =  bootstrapPage(theme="styles.css",
 	# This script pulls the user's geolocation
 	tags$script('
 	$(document).ready(function () {
@@ -31,15 +31,16 @@ myui =  bootstrapPage(
 	}
 	});
 	'),
-	tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+  	# Add Map
 	leafletOutput("bikemap", width = "100%", height = "100%"),
+	# Add Floating sidebar
 	conditionalPanel(condition = "input.hide == false",
-		absolutePanel(top = 50, right = 50, width = 300,
-			h1(textOutput("title")),
-			h3("This is a map of all the BikeShare stations in Melbourne.
-				Select each option to view different information."),
-			textOutput("closest"),
+		absolutePanel( id = "info",
+			top = 50, right = 50, width = 350, 
+			h1("Melbourne BikeShare Map"),
 			textOutput("lastupdate"),
+			h3(textOutput("infotext")),
+			textOutput("closest"),
 			radioButtons("choice", label = h3("Choose What To Display"), 
 	        choices = list("Station Size" = 1, "Current Capacity" = 2,
 	                       "Clustered Bike Locations" = 3), selected = 2)
@@ -57,8 +58,18 @@ myserver = function(input, output, session) {
 		source("pullData.R")
 	})
 
-	output$title = renderText({
-		"Melbourne BikeShare Map"
+	output$infotext = renderText({
+		if(input$choice==1) {
+			"Each circle represents the relative 
+				size (# of docks) of each station."
+		} else if(input$choice==2) {
+			"The colour of each circle shows what proportion
+			 	of bikes are still available at that station."
+		} else if(input$choice==3) {
+			"The number on each cluster shows the number of bikes 
+				currently available in that region. Click one to
+				see more detail."
+	}
 	})
 
 	output$lastupdate = renderText({
@@ -74,6 +85,7 @@ myserver = function(input, output, session) {
 			setView(lng = 145.017814 , lat = -37.827523, zoom = 13) %>% 
 			addProviderTiles("CartoDB.Positron")
 	})
+
 	# Determine the 'as bird flies' closest Bike Rack 
 	output$closest = renderText({
 		if(!is.null(input$lat)) {
