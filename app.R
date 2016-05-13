@@ -15,9 +15,9 @@ myui =  bootstrapPage(
 	absolutePanel(top = 50, right = 50, width = 300,
 		h1(textOutput("title")),
 		textOutput("lastupdate"),
-		selectInput("choice", label = h3("Choose What To Display"), 
+		radioButtons("choice", label = h3("Choose What To Display"), 
         choices = list("Station Size" = 1, "Current Capacity" = 2,
-                       "Clustered Bike Locations" = 3), selected = 1)
+                       "Clustered Bike Locations" = 3), selected = 2)
 	)
 )
 
@@ -25,7 +25,7 @@ myui =  bootstrapPage(
 myserver = function(input, output, session) {
 
 	rawData = reactive({
-		invalidateLater(100000, NULL)
+		invalidateLater(1000000, NULL)
 		source("pullData.R")
 	})
 
@@ -50,52 +50,77 @@ myserver = function(input, output, session) {
 	# An observer is used to make the elements responsive
 	observe({
 		bikedata = rawData()$value
-		if (input$choice==1){
-			leafletProxy("bikemap", data=bikedata) %>%
-				removeControl("legend") %>%
-				clearMarkers() %>%
-				addCircleMarkers(
+		bikefull = bikedata[rep(1:nrow(bikedata), times=bikedata$nbBikes),]
+		pal = colorNumeric(
+			  palette = "RdYlGn",
+			  domain = c(0,100)
+			)
+		# Add all points to map on data load
+		leafletProxy("bikemap", data=bikedata) %>%
+			addCircleMarkers(
 					radius = ~(nbBikes + nbEmptyDocks),
 					stroke = FALSE,
 					fillOpacity = 0.5,
 					popup = ~name,
-					color = "blue"
-					)
-		} else if (input$choice==2){
-			pal = colorNumeric(
-			  palette = "RdYlGn",
-			  domain = c(0,100)
-			)
-			leafletProxy("bikemap", data=bikedata) %>%
-				clearMarkers() %>%
-				addCircleMarkers(
+					color = "blue",
+					group = "capacity"
+					) %>%
+			addCircleMarkers(
 					radius = 15,
 					stroke = FALSE,
 					fillOpacity = 1.0,
 					popup = ~name,
-					color = ~pal(capacity)
+					color = ~pal(capacity),
+					group = "remaining"
 					) %>%
-			  	addLegend("bottomright", pal = pal, values = c(0,100),
-				    title = "Current Station Capacity",
-				    layerId = "legend",
-				    labFormat = labelFormat(suffix = "%"),
-				    opacity = 1)
-		} else {
-			bikedata = bikedata[rep(1:nrow(bikedata), times=bikedata$nbBikes),]
-			leafletProxy("bikemap", data=bikedata) %>%
-				clearMarkers() %>%
-				removeControl("legend") %>%
-				addCircleMarkers(
-					radius = 15,
-					stroke = FALSE,
-					fillOpacity = 0.5,
-					popup = ~name,
-					color = "green",
-					clusterOptions = markerClusterOptions()
-					)
-		}
+		  	addLegend("bottomright", pal = pal, values = c(0,100),
+			    title = "Percentage of Bikes Remaining",
+			    layerId = "legend",
+			    labFormat = labelFormat(suffix = "%"),
+			    opacity = 1) %>%
+			addCircleMarkers(data=bikefull,
+				radius = 15,
+				stroke = FALSE,
+				fillOpacity = 0.5,
+				popup = ~name,
+				color = "green",
+				clusterOptions = markerClusterOptions(),
+				group = "bikeloc"
+				) %>% 
+			hideGroup("bikeloc") %>% 
+			hideGroup("capacity") 
 	})
 
+	# A second observer hides, shows the marker layers based on input
+	observe({
+		pal = colorNumeric(
+			  palette = "RdYlGn",
+			  domain = c(0,100)
+			)
+		if(input$choice==1) {
+			leafletProxy("bikemap") %>% 
+			removeControl("legend") %>%
+			hideGroup("bikeloc") %>% 
+			hideGroup("remaining") %>% 
+			showGroup("capacity") 
+		} else if(input$choice==2) {
+			leafletProxy("bikemap") %>% 
+			hideGroup("bikeloc") %>% 
+			hideGroup("capacity") %>% 
+			showGroup("remaining") %>%
+			addLegend("bottomright", pal = pal, values = c(0,100),
+			    title = "Percentage of Bikes Remaining",
+			    layerId = "legend",
+			    labFormat = labelFormat(suffix = "%"),
+			    opacity = 1) 
+		} else if(input$choice==3) {
+			leafletProxy("bikemap") %>% 
+			removeControl("legend") %>%
+			hideGroup("remaining") %>% 
+			hideGroup("capacity") %>% 
+			showGroup("bikeloc") 
+		}
+	})
 }
 
 shinyApp(ui=myui, server=myserver)
