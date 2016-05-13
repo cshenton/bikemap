@@ -63,8 +63,8 @@ myserver = function(input, output, session) {
 			"Each circle represents the relative 
 				size (# of docks) of each station."
 		} else if(input$choice==2) {
-			"The colour of each circle shows what proportion
-			 	of bikes are still available at that station."
+			"The colour of each circle shows what proportion of
+				bikes are still available at that station right now."
 		} else if(input$choice==3) {
 			"The number on each cluster shows the number of bikes 
 				currently available in that region. Click one to
@@ -93,8 +93,16 @@ myserver = function(input, output, session) {
 			user = c(input$long, input$lat)
 			points = as.matrix(bikedata[,c("long","lat")])
 			dists = spDistsN1(points, user, longlat = TRUE)
+			d = round(min(dists))
 			stat = data[which(dists == min(dists), arr.ind = TRUE) ,"name"]
-			paste("Your nearest BikeShare station is", stat)
+			joke = ""
+			if(d > 100){
+				joke = " You don't seem to be walking distance from a
+					BikeShare station. Perhaps you should consider 
+					alternative transport."
+			}
+			paste(sep="","Your nearest BikeShare station is ",
+			 stat, ". It is ", d, "km away.",joke)
 		}
 	})
 
