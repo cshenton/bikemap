@@ -33,16 +33,20 @@ myui =  bootstrapPage(
 	'),
 	tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
 	leafletOutput("bikemap", width = "100%", height = "100%"),
-	absolutePanel(top = 50, right = 50, width = 300,
-		h1(textOutput("title")),
-		h3("This is a map of all the BikeShare stations in Melbourne.
-			Select each option to view different information."),
-		textOutput("closest"),
-		textOutput("lastupdate"),
-		radioButtons("choice", label = h3("Choose What To Display"), 
-        choices = list("Station Size" = 1, "Current Capacity" = 2,
-                       "Clustered Bike Locations" = 3), selected = 2)
-	)
+	conditionalPanel(condition = "input.hide == false",
+		absolutePanel(top = 50, right = 50, width = 300,
+			h1(textOutput("title")),
+			h3("This is a map of all the BikeShare stations in Melbourne.
+				Select each option to view different information."),
+			textOutput("closest"),
+			textOutput("lastupdate"),
+			radioButtons("choice", label = h3("Choose What To Display"), 
+	        choices = list("Station Size" = 1, "Current Capacity" = 2,
+	                       "Clustered Bike Locations" = 3), selected = 2)
+		)),
+	absolutePanel(top = 5, left = 50, width = 200,
+		checkboxInput("hide", label = h4("Hide Information"), FALSE)
+		)
 )
 
 # Define the server function
