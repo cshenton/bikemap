@@ -1,6 +1,11 @@
+# Author: Charles Shenton
+# Created: 2016 May 6
+#
+# Last Edited by: Charles Shenton
+# Last Edited: 2016 May 13
+#
+# Downloads and formats data from Melbourne Bikeshare site
 
-# Downloads data from Bikeshare site,
-# Converts dates to POSIXct format
 datevars = c("lastCommWithServer", "installDate", "latestUpdateTime")
 source = "http://www.melbournebikeshare.com.au/stationmap/data"
 file = getURL(source)

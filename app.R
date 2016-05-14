@@ -1,3 +1,11 @@
+# Author: Charles Shenton
+# Created: 2016 May 12
+#
+# Last Edited by: Charles Shenton
+# Last Edited: 2016 May 14
+#
+# Shiny app that visualises live Melbourne BikeShare information
+
 library(shiny)
 library(jsonlite)
 library(RCurl)
@@ -53,11 +61,12 @@ myui =  bootstrapPage(theme="styles.css",
 # Define the server function
 myserver = function(input, output, session) {
 
+	# Pull data from server
 	rawData = reactive({
 		invalidateLater(1000000, NULL)
 		source("pullData.R")
 	})
-
+	# Text describing data
 	output$infotext = renderText({
 		if(input$choice==1) {
 			"Each circle represents the relative 
@@ -73,22 +82,13 @@ myserver = function(input, output, session) {
 				see more detail."
 	}
 	})
-
+	# Determines most recent read attempt
 	output$lastupdate = renderText({
 		rawData()	# when data refreshes
 		time = Sys.time()
 		attributes(time)$tzone = "Australia/Melbourne"
 		paste("Last update was at", time)
 	})
-	 
-	# The base map is not reactive 
-	output$bikemap = renderLeaflet({
-		leaflet() %>% 	# Generate, return map
-			fitBounds(144.904247, -37.770056,
-						145.039690, -37.885019) %>%
-			addProviderTiles("CartoDB.Positron")
-	})
-
 	# Determine the 'as bird flies' closest Bike Rack 
 	output$closest = renderText({
 		if(!is.null(input$lat)) {
@@ -108,7 +108,13 @@ myserver = function(input, output, session) {
 			 stat, ". It is ", d, "km away.",joke)
 		}
 	})
-
+	# Initialise base map
+	output$bikemap = renderLeaflet({
+		leaflet() %>% 	# Generate, return map
+			fitBounds(144.904247, -37.770056,
+						145.039690, -37.885019) %>%
+			addProviderTiles("CartoDB.Positron")
+	})
 	# Locate the user on the map and add a marker.
 	observe({
 		if(!is.null(input$lat)) {
@@ -118,8 +124,7 @@ myserver = function(input, output, session) {
 			addMarkers(long, lat, popup = htmlEscape("You Are Here"))
 		}
 	})
-
-	# An observer is used to make the elements refresh with data
+	# Load all data onto map, hide unselected data
 	observe({
 		bikedata = rawData()$value
 		bikefull = bikedata[rep(1:nrow(bikedata), times=bikedata$nbBikes),]
@@ -165,8 +170,7 @@ myserver = function(input, output, session) {
 			hideGroup("bikeloc") %>% 
 			hideGroup("capacity") 
 	})
-
-	# A second observer hides, shows the marker layers based on input
+	# Hide/Show layers based on user input
 	observe({
 		pal = colorNumeric(
 			  palette = "RdYlGn",
@@ -197,5 +201,5 @@ myserver = function(input, output, session) {
 		}
 	})
 }
-
+# Return app object
 shinyApp(ui=myui, server=myserver)
