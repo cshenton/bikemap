@@ -80,11 +80,12 @@ myserver = function(input, output, session) {
 		attributes(time)$tzone = "Australia/Melbourne"
 		paste("Last update was at", time)
 	})
-	
+	 
 	# The base map is not reactive 
 	output$bikemap = renderLeaflet({
 		leaflet() %>% 	# Generate, return map
-			setView(lng = 145.017814 , lat = -37.827523, zoom = 13) %>% 
+			fitBounds(144.904247, -37.770056,
+						145.039690, -37.885019) %>%
 			addProviderTiles("CartoDB.Positron")
 	})
 
@@ -99,7 +100,7 @@ myserver = function(input, output, session) {
 			stat = data[which(dists == min(dists), arr.ind = TRUE) ,"name"]
 			joke = ""
 			if(d > 100){
-				joke = " You don't seem to be walking distance from a
+				joke = " You don't seem to be within walking distance of a
 					BikeShare station. Perhaps you should consider 
 					alternative transport."
 			}
