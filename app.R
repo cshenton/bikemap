@@ -105,7 +105,7 @@ myserver = function(input, output, session) {
 					alternative transport."
 			}
 			paste(sep="","Your nearest BikeShare station is ",
-			 stat, ". It is ", d, "km away.",joke)
+				stat, ". It is ", d, "km away.",joke)
 		}
 	})
 	# Initialise base map
@@ -129,29 +129,29 @@ myserver = function(input, output, session) {
 		bikedata = rawData()$value
 		bikefull = bikedata[rep(1:nrow(bikedata), times=bikedata$nbBikes),]
 		pal = colorNumeric(
-			  palette = "RdYlGn",
-			  domain = c(0,100)
+		  palette = "RdYlGn",
+		  domain = c(0,100)
 			)
 		# Add all points to map on data load
 		leafletProxy("bikemap", data=bikedata) %>%
 			addCircleMarkers(
-					radius = ~(nbBikes + nbEmptyDocks),
-					stroke = FALSE,
-					fillOpacity = 0.5,
-					popup = ~paste(name,"<br/> <b>Last Update:</b>",
-						lastCommWithServer),
-					color = "blue",
-					group = "capacity"
-					) %>%
+				radius = ~(nbBikes + nbEmptyDocks),
+				stroke = FALSE,
+				fillOpacity = 0.5,
+				popup = ~paste(name,"<br/> <b>Last Update:</b>",
+					lastCommWithServer),
+				color = "blue",
+				group = "capacity"
+				) %>%
 			addCircleMarkers(
-					radius = 15,
-					stroke = FALSE,
-					fillOpacity = 1.0,
-					popup = ~paste(name,"<br/> <b>Last Update:</b>",
-						lastCommWithServer),
-					color = ~pal(capacity),
-					group = "remaining"
-					) %>%
+				radius = 15,
+				stroke = FALSE,
+				fillOpacity = 1.0,
+				popup = ~paste(name,"<br/> <b>Last Update:</b>",
+					lastCommWithServer),
+				color = ~pal(capacity),
+				group = "remaining"
+				) %>%
 		  	addLegend("bottomright", pal = pal, values = c(0,100),
 			    title = "Percentage of Bikes Remaining",
 			    layerId = "legend",
