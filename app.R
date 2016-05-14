@@ -153,10 +153,10 @@ myserver = function(input, output, session) {
 				group = "remaining"
 				) %>%
 		  	addLegend("bottomright", pal = pal, values = c(0,100),
-			    title = "Percentage of Bikes Remaining",
-			    layerId = "legend",
-			    labFormat = labelFormat(suffix = "%"),
-			    opacity = 1) %>%
+				title = "Percentage of Bikes Remaining",
+				layerId = "legend",
+				labFormat = labelFormat(suffix = "%"),
+				opacity = 1) %>%
 			addCircleMarkers(data=bikefull,
 				radius = 15,
 				stroke = FALSE,
