@@ -24,7 +24,8 @@ On initial load:
 * Data are loaded and formatted, and a map circle is made for each bike station.
 * The sidebar is loaded, providing different display options to the user.
 
-There are three display options
+There are three display options:
+
 1. Station Size: Scales map circles relative to the total capacity of the station
 2. Current Capacity: Circle colour shows what proportion of bikes remain at the station (legend in bottom right)
 3. Clustered Bike Locations: Uses `leaflet`'s built in clustering to allow users to explore bike locations
