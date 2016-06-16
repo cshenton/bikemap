@@ -10,7 +10,7 @@ Data is streamed from [Melbourne BikeShare](http://www.melbournebikeshare.com.au
 
 `pullData.R` downloads data from source and returns it in a format useable by `R Shiny`.
 
-`app.R` defines the UI and server functions for the application/
+`app.R` defines the UI and server functions for the application.
 
 ## Goal
 
